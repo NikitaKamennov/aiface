@@ -45,13 +45,13 @@ const CONTEXT_WARNING_THRESHOLD = 0.8; // 80% от максимума
 const OLLAMA_API_URL = "http://localhost:11434/api/chat";
 
 const PERSONAS = {
-  financialAnalyst: {
+  superCoder: {
     name: "Квен Кодер",
     avatar: "/images/analyst.jpg",
     color: "#2196f3",
     shortName: "KK",
   },
-  fitnessTrainer: {
+  coder: {
     name: "Кодер",
     avatar: "/images/1212.jpg",
     color: "#f50057",
@@ -137,11 +137,11 @@ const CopyButton = ({ code }) => {
 };
 
 const AIHomePage = () => {
-  const [role, setRole] = useState("financialAnalyst");
+  const [role, setRole] = useState("superCoder");
   const [message, setMessage] = useState<string>("");
   const [conversation, setConversation] = useState<Message[]>([]);
   const [currentPersona, setCurrentPersona] = useState<Persona>(
-    PERSONAS.financialAnalyst
+    PERSONAS.superCoder
   );
   const [contextLength, setContextLength] = useState(0);
   const messagesEndRef = useRef(null);
@@ -271,16 +271,16 @@ const AIHomePage = () => {
   };
   const roles = [
     {
-      value: "financialAnalyst",
+      value: "superCoder",
       label: "Супер программист",
       systemMessage:
-        "You're a very good assistant. You're thoughtful and give very thoughtful answers. you are the best JS programmer. give me the best code. with best practices. Let's explain it in Russian.mark the code with triple reverse marks at the beginning and at the end of the ```code ```",
+        "You're a very good assistant. You're thoughtful and give very thoughtful answers. you are the best JS and TS programmer. give me the best code. with best practices. Let's explain it in Russian.mark the code with triple reverse marks at the beginning and at the end of the ```code ```",
     },
     {
-      value: "fitnessTrainer",
-      label:
-        "You're a great TS and JS assistant, and you'll show us the best practices in your answer. Let's explain it in Russian.mark the code with triple reverse marks at the beginning and at the end of the ```code ```",
-      systemMessage: "",
+      value: "coder",
+      label: "программист",
+      systemMessage:
+        "You're a great assistant, and you'll show us the best practices in your answer. Let's explain it in Russian.mark the code with triple reverse marks at the beginning and at the end of the ```code ```",
     },
     {
       value: "taxiDriver",
