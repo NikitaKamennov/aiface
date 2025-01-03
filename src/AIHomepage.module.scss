@@ -1,0 +1,118 @@
+.wrapper {
+  width: 800px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.chatWindow {
+  margin: 20px 0;
+  height: 400px;
+  max-height: 8000px;
+  overflow-y: auto;
+}
+
+.inputForm {
+  display: flex;
+  align-items: center;
+}
+
+.inputForm .MuiTextField-root {
+  flex: 1;
+}
+
+.inputForm .MuiIconButton-root {
+  margin-left: 10px;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+  object-fit: cover;
+}
+
+.assistantInfo {
+  display: flex;
+  align-items: center;
+}
+
+.assistantName {
+  font-weight: bold;
+}
+
+.messageText {
+  padding: 8px 12px;
+  border-radius: 4px;
+  display: block;
+  margin: 4px 0;
+}
+
+.messageText {
+  &.collapsed {
+    cursor: pointer;
+    &:hover {
+      background-color: rgba(44, 62, 80, 0.9) !important;
+    }
+  }
+}
+
+.codeBlock {
+  margin: 16px 0;
+  position: relative;
+  background-color: #1e1e1e;
+  border-radius: 4px;
+}
+
+.codeWrapper {
+  position: relative;
+  margin: 16px 0;
+  padding-bottom: 10px; // Добавляем отступ снизу для кнопки
+}
+
+.copyButton {
+  position: absolute !important;
+  bottom: 40px !important; // Меняем с top на bottom
+  right: 12px !important; // Меняем с right на left
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+  }
+}
+
+.loadingBox {
+  padding: 16px;
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.03) 0%,
+    rgba(0, 0, 0, 0.06) 50%,
+    rgba(0, 0, 0, 0.03) 100%
+  );
+  background-size: 200% 100%;
+  animation: gradientWave 7s linear infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+@keyframes gradientWave {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.loadingText {
+  color: rgba(0, 0, 0, 0.7);
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
