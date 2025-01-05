@@ -413,15 +413,18 @@ const AIHomePage = () => {
       <Fade in={showSettings} timeout={300}>
         <Box
           sx={{
+            maxWidth: 800,
+            minWidth: 800,
             position: "absolute",
             top: 100,
             right: 0,
             backgroundColor: "background.paper", // автоматически меняется с темой
-            opacity: 0.9, // прозрачность
+            opacity: 0.8, // прозрачность
             backdropFilter: "blur(8px)",
             boxShadow: 1, // тень
             borderRadius: 1,
             padding: 2,
+            zIndex: 40,
           }}>
           <Box
             sx={{
@@ -494,6 +497,7 @@ const AIHomePage = () => {
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
             <ThemeToggleButton />
           </Box>
+
           <ModelSelector
             selectedModel={currentModel}
             onModelChange={(model) => {

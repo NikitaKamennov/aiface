@@ -16,6 +16,8 @@ import {
   DialogActions,
   LinearProgress,
 } from "@mui/material";
+// @ts-ignore
+import styles from "./ModelSelector.module.scss";
 
 interface Model {
   name: string;
@@ -240,30 +242,57 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
           try {
             const data = JSON.parse(line);
 
-            if (data.status === "pulling manifest") {
-              setProgressStatus("Загрузка манифеста...");
-            } else if (data.status.startsWith("downloading")) {
-              const percent = data.completed
-                ? Math.round((data.completed / data.total) * 100)
-                : 0;
-              setProgressStatus(`Загрузка: ${percent}%`);
-              setProgressPercent(percent);
-            } else if (data.status === "verifying sha256 digest") {
-              setProgressStatus("Проверка загрузки...");
-            } else if (data.status === "writing manifest") {
-              setProgressStatus("Запись манифеста...");
-            } else if (data.status === "success") {
-              setStatus({
-                type: "success",
-                message: `Модель ${newModelName} успешно установлена`,
-              });
-              fetchModels();
-              break;
-            } else if (data.error) {
-              throw new Error(data.error);
+            // Обработка различных статусов установки
+            switch (data.status) {
+              case "pulling manifest":
+                setProgressStatus("Загрузка манифеста...");
+                setProgressPercent(5);
+                break;
+
+              case "downloading":
+                const percent =
+                  data.completed && data.total
+                    ? Math.round((data.completed / data.total) * 100)
+                    : 0;
+                setProgressStatus(`Загрузка файлов: ${percent}%`);
+                setProgressPercent(percent);
+                break;
+
+              case "verifying sha256 digest":
+                setProgressStatus("Проверка целостности файлов...");
+                setProgressPercent(95);
+                break;
+
+              case "writing manifest":
+                setProgressStatus("Запись манифеста...");
+                setProgressPercent(98);
+                break;
+
+              case "removing any unused layers":
+                setProgressStatus("Очистка неиспользуемых файлов...");
+                setProgressPercent(99);
+                break;
+
+              case "success":
+                setStatus({
+                  type: "success",
+                  message: `Модель ${newModelName} успешно установлена`,
+                });
+                setProgressPercent(100);
+                fetchModels();
+                break;
+
+              default:
+                if (data.error) {
+                  throw new Error(data.error);
+                }
             }
           } catch (e) {
             console.error("Error parsing chunk:", e);
+            setStatus({
+              type: "error",
+              message: `Ошибка при установке: ${e.message}`,
+            });
           }
         }
       }
@@ -279,6 +308,85 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
       setProgressPercent(0);
     }
   };
+
+  // const installModel = async () => {
+  //   if (!newModelName.trim()) return;
+
+  //   setIsLoading(true);
+  //   setStatus(null);
+  //   setProgressStatus("Начало установки...");
+  //   setProgressPercent(0);
+
+  //   try {
+  //     const response = await fetch("http://localhost:11434/api/pull", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         name: newModelName,
+  //       }),
+  //     });
+
+  //     if (!response.body) {
+  //       throw new Error("Response body is null");
+  //     }
+
+  //     const reader = response.body.getReader();
+  //     const decoder = new TextDecoder();
+
+  //     while (true) {
+  //       const { done, value } = await reader.read();
+  //       if (done) break;
+
+  //       const chunk = decoder.decode(value);
+  //       const lines = chunk.split("\n");
+
+  //       for (const line of lines) {
+  //         if (!line) continue;
+
+  //         try {
+  //           const data = JSON.parse(line);
+
+  //           if (data.status === "pulling manifest") {
+  //             setProgressStatus("Загрузка манифеста...");
+  //           } else if (data.status.startsWith("downloading")) {
+  //             const percent = data.completed
+  //               ? Math.round((data.completed / data.total) * 100)
+  //               : 0;
+  //             setProgressStatus(`Загрузка: ${percent}%`);
+  //             setProgressPercent(percent);
+  //           } else if (data.status === "verifying sha256 digest") {
+  //             setProgressStatus("Проверка загрузки...");
+  //           } else if (data.status === "writing manifest") {
+  //             setProgressStatus("Запись манифеста...");
+  //           } else if (data.status === "success") {
+  //             setStatus({
+  //               type: "success",
+  //               message: `Модель ${newModelName} успешно установлена`,
+  //             });
+  //             fetchModels();
+  //             break;
+  //           } else if (data.error) {
+  //             throw new Error(data.error);
+  //           }
+  //         } catch (e) {
+  //           console.error("Error parsing chunk:", e);
+  //         }
+  //       }
+  //     }
+  //   } catch (error) {
+  //     setStatus({
+  //       type: "error",
+  //       message: `Ошибка установки модели: ${error.message}`,
+  //     });
+  //   } finally {
+  //     setIsLoading(false);
+  //     setNewModelName("");
+  //     setProgressStatus("");
+  //     setProgressPercent(0);
+  //   }
+  // };
 
   /// удаление модели
 
@@ -336,10 +444,29 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
     fetchModels();
   }, []);
 
+  // Добавляем useEffect для автоматического скрытия
+  useEffect(() => {
+    if (status) {
+      const timer = setTimeout(() => {
+        setStatus(null);
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [status]);
+
   return (
-    <Box sx={{ mb: 2 }}>
+    <Box sx={{ mb: 2, position: "relative" }}>
       {isLoading && progressStatus && (
-        <Box sx={{ width: "100%", mt: 2 }}>
+        <Box
+          sx={{
+            width: "100%",
+            mt: 2,
+            paddingBottom: "10px",
+            position: "absolute",
+            top: 70,
+            zIndex: 555,
+          }}>
           <Typography variant="body2" color="textSecondary">
             {progressStatus}
           </Typography>
@@ -354,7 +481,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
         <Typography variant="body2" sx={{ minWidth: "fit-content" }}>
           Модель:
         </Typography>
-        <FormControl size="small" sx={{ minWidth: 200 }}>
+        <FormControl size="small" sx={{ minWidth: 250, maxWidth: 250 }}>
           <Select
             value={selectedModel}
             onChange={(e) => onModelChange(e.target.value)}
@@ -449,8 +576,9 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
 
       {status && (
         <Alert
+          sx={{ marginTop: 2, padding: 5, zIndex: 555 }}
           severity={status.type}
-          sx={{ mt: 1 }}
+          className={styles.alertOverlay}
           //@ts-ignore
           size="small">
           {status.message}
