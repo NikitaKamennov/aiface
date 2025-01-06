@@ -74,11 +74,28 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
   const [openQuantizeDialog, setOpenQuantizeDialog] = useState(false);
 
   // Загрузка списка доступных моделей
+  // Функция очистки названия модели
+  const cleanModelName = (name: string): string => {
+    // Если в названии есть скобки, удаляем их и содержимое
+    const withoutBrackets = name.replace(/\([^)]*\)/g, "");
+
+    // Убираем возможные пробелы в конце
+    return withoutBrackets.trim();
+  };
+
+  // Изменяем функцию fetchModels
   const fetchModels = async () => {
     try {
       const response = await fetch("http://localhost:11434/api/tags");
       const data = await response.json();
-      setAvailableModels(data.models);
+
+      // Очищаем названия моделей перед установкой в state
+      const cleanedModels = data.models.map((model) => ({
+        ...model,
+        name: cleanModelName(model.name),
+      }));
+
+      setAvailableModels(cleanedModels);
     } catch (error) {
       console.error("Error fetching models:", error);
       setStatus({
