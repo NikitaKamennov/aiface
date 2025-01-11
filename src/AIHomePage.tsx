@@ -184,82 +184,87 @@ const AIHomePage = () => {
   const parseMessageContent = (content: string) => {
     const parts = [];
     let currentText = "";
-
-    // Разбиваем контент на строки
     const lines = content.split("\n");
-
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-
-      // Обработка блоков кода
       if (line.startsWith("```")) {
-        // Если есть накопленный текст, добавляем его
         if (currentText.trim()) {
-          parts.push({
-            type: "text",
-            content: currentText.trim(),
-          });
+          parts.push({ type: "text", content: currentText.trim() });
           currentText = "";
         }
-
         let codeContent = "";
         i++;
         while (i < lines.length && !lines[i].startsWith("```")) {
           codeContent += lines[i] + "\n";
           i++;
         }
-
-        parts.push({
-          type: "code",
-          content: codeContent.trim(),
-        });
+        parts.push({ type: "code", content: codeContent.trim() });
         continue;
       }
 
-      // Обработка маркированного списка
-      // Обработка маркированного списка
-      if (line.startsWith("**") && line.endsWith("**")) {
+      const titleRegex = /(?:^|\s*)(###\s*.*?)(?=\n|$)/g;
+      let lastIndex = 0;
+      let match;
+
+      while ((match = titleRegex.exec(line)) !== null) {
+        if (match.index > lastIndex) {
+          currentText += line.substring(lastIndex, match.index);
+        }
+
         if (currentText.trim()) {
-          parts.push({
-            type: "text",
-            content: currentText.trim(),
-          });
+          parts.push({ type: "text", content: currentText.trim() });
           currentText = "";
         }
 
-        parts.push({
-          type: "listItem",
-          content: line.slice(2, -2).trim(), // Убираем две звездочки в начале и конце
-        });
-        continue;
+        const titleContent = match[1].replace(/^###\s*/, "").trim();
+        parts.push({ type: "title", content: titleContent });
+        currentText += titleContent;
+
+        lastIndex = match.index + match[0].length;
       }
 
-      // Обработка заголовков
-      if (line.startsWith("###")) {
-        if (currentText.trim()) {
-          parts.push({
-            type: "text",
-            content: currentText.trim(),
-          });
-          currentText = "";
+      // Если после обработки ### остался текст, обрабатываем звездочки
+      if (lastIndex < line.length) {
+        const boldRegex =
+          /(?:^|\s*)(\d+[:.]\s*|\d+\.\s*|\d+\s+)?(\*\*(.*?)\*\*)/g;
+        let lastIndex = 0;
+        let match;
+
+        while ((match = boldRegex.exec(line)) !== null) {
+          // Добавляем текст до совпадения
+          if (match.index > lastIndex) {
+            currentText += line.substring(lastIndex, match.index);
+          }
+
+          if (currentText.trim()) {
+            parts.push({ type: "text", content: currentText.trim() });
+            currentText = "";
+          }
+
+          // Извлекаем номер (если есть) и содержимое между звездочками
+          const numberPrefix = match[1] || "";
+          const content = match[3]; // Используем группу 3, так как группа 2 содержит звездочки
+
+          // Формируем полный контент с номером
+          const fullContent = (numberPrefix + content).trim();
+
+          // Добавляем как header
+          parts.push({ type: "header", content: fullContent });
+
+          // Добавляем этот же текст обратно в поток
+          currentText += fullContent;
+
+          lastIndex = match.index + match[0].length;
         }
-
-        currentText += line.replace(/^###\s*/, "") + "\n";
-        continue;
+        if (lastIndex < line.length) {
+          currentText += line.substring(lastIndex);
+        }
       }
-
-      // Накапливаем обычный текст
-      currentText += line + "\n";
+      currentText += "\n";
     }
-
-    // Добавляем оставшийся текст
     if (currentText.trim()) {
-      parts.push({
-        type: "text",
-        content: currentText.trim(),
-      });
+      parts.push({ type: "text", content: currentText.trim() });
     }
-
     return parts;
   };
 
