@@ -87,6 +87,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({
   const fetchModels = async () => {
     try {
       const response = await fetch("http://localhost:11434/api/tags");
+      // const response = await fetch("http://192.168.31.143:11434/api/tags");
       const data = await response.json();
 
       // Очищаем названия моделей перед установкой в state

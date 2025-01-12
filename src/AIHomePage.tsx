@@ -45,6 +45,12 @@ const CONTEXT_WARNING_THRESHOLD = 0.8; // 80% от максимума
 const OLLAMA_API_URL = "http://localhost:11434/api/chat";
 
 const PERSONAS = {
+  blank: {
+    name: "Чистый нейро",
+    avatar: "/images/blank.jpg",
+    color: "#111111",
+    shortName: "Ч",
+  },
   superCoder: {
     name: "Квен Кодер",
     avatar: "/images/analyst.jpg",
@@ -275,6 +281,7 @@ const AIHomePage = () => {
     }
   };
   const roles = [
+    { value: "blank", label: "Чистый", systemMessage: "" },
     {
       value: "superCoder",
       label: "Супер программист",
@@ -342,9 +349,9 @@ const AIHomePage = () => {
           model: currentModel,
           messages: messagesToSend,
           options: {
-            seed: 123, // Фиксированный seed
-            temperature: temperature, // Небольшая вариативность
-            num_ctx: 128000, // Максимальный размер контекста
+            // seed: 123, // Фиксированный seed
+            // temperature: temperature, // Небольшая вариативность
+            // num_ctx: 128000, // Максимальный размер контекста
           },
         }),
       });
